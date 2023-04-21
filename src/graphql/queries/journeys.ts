@@ -1,38 +1,17 @@
+import JourneyModel from '../../models/journeys';
 import { Journeys } from '../../types';
-
-const journeys: Journeys = [
-  {
-    departure: '2021-06-30T23:59:46',
-    return: '2021-06-30T23:59:55',
-    departureStationId: '107',
-    returnStationName: 'Tenholantie',
-    returnStationId: '111',
-    departureStationName: 'Esterinportti',
-    coveredDistance: '1847',
-    duration: '404',
-  },
-  {
-    departure: '2021-06-30T23:59:46',
-    return: '2021-06-30T23:59:55',
-    departureStationId: '009',
-    returnStationName: 'Erottajan aukio',
-    returnStationId: '040',
-    departureStationName: 'Hakaniemi',
-    coveredDistance: '1847',
-    duration: '404	',
-  },
-];
 
 export const typeDefs = `
   type Journey {
+    id:ID
     departure: String!
     return:String!
-    departureStationId:ID!
+    departureStationId:Int!
     returnStationName:String!
-    returnStationId:ID!
+    returnStationId:Int!
     departureStationName:String!
-    coveredDistance:String
-    duration:String
+    coveredDistanceMeters:Int!
+    durationSeconds:Int!
   }
 
   type Query {
@@ -43,8 +22,15 @@ export const typeDefs = `
 
 export const resolvers = {
   Query: {
-    journeysCount: (): number => journeys.length,
-    allJourneys: (): Journeys => journeys,
+    journeysCount: async (): Promise<number> =>
+      JourneyModel.collection.countDocuments(),
+    allJourneys: async (): Promise<Journeys> => {
+      const query = {
+        coveredDistanceMeters: { $gt: 10 },
+        durationSeconds: { $gt: 10 },
+      };
+      return await JourneyModel.find(query).limit(20).select('-__v');
+    },
   },
 };
 

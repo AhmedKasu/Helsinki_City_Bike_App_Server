@@ -1,12 +1,12 @@
 export type Journey = {
   departure: string;
   return: string;
-  departureStationId: string;
+  departureStationId: number;
   returnStationName: string;
-  returnStationId: string;
+  returnStationId: number;
   departureStationName: string;
-  coveredDistance: string;
-  duration: string;
+  coveredDistanceMeters: number;
+  durationSeconds: number;
 };
 
 export type Journeys = Array<Journey>;
