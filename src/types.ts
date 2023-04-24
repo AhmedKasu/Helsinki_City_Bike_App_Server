@@ -1,4 +1,11 @@
-export type Journey = {
+export interface PaginationDetails {
+  currentPage: number;
+  limit: number;
+  nextPage: boolean;
+  previousPage: boolean;
+}
+
+export interface Journey {
   departure: string;
   return: string;
   departureStationId: number;
@@ -7,6 +14,4 @@ export type Journey = {
   departureStationName: string;
   coveredDistanceMeters: number;
   durationSeconds: number;
-};
-
-export type Journeys = Array<Journey>;
+}

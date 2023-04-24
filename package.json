@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@apollo/server": "^4.6.0",
+    "@types/lodash": "^4.14.194",
     "dotenv": "^16.0.3",
     "graphql": "^16.6.0",
     "mongoose": "^7.0.4"
