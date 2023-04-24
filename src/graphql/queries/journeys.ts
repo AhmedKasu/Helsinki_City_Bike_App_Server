@@ -30,13 +30,15 @@ type JourneyResult {
 
 type Query {
   journeysCount: Int!
-  allJourneys(currentPage:Int,limit:Int): JourneyResult! 
+  allJourneys(currentPage:Int,limit:Int,departureStationName:String,returnStationName:String): JourneyResult! 
 }
 `;
 
 interface QueryArgs {
   currentPage: number;
   limit: number;
+  departureStationName: string;
+  returnStationName: string;
 }
 interface JourneyResults {
   journeys: Array<Journey>;
@@ -52,10 +54,20 @@ export const resolvers = {
       _root: unknown,
       args: QueryArgs
     ): Promise<JourneyResults> => {
-      const { currentPage, limit } = args;
-      const query = {
+      const { currentPage, limit, departureStationName, returnStationName } =
+        args;
+
+      const defaultQuery = {
         coveredDistanceMeters: { $gt: 10 },
         durationSeconds: { $gt: 10 },
+      };
+
+      const searchQuery = {
+        ...defaultQuery,
+        $and: [
+          { departureStationName: { $in: [departureStationName] } },
+          { returnStationName: { $in: [returnStationName] } },
+        ],
       };
 
       const { modelResults: journeys, paginationDetails } =
@@ -63,7 +75,10 @@ export const resolvers = {
           currentPage,
           limit,
           model: JourneyModel,
-          query,
+          query:
+            departureStationName && returnStationName
+              ? searchQuery
+              : defaultQuery,
         });
 
       return {
