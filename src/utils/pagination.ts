@@ -1,10 +1,5 @@
 import { Model } from 'mongoose';
 import { PaginationDetails } from '../types';
-import { GraphQLError } from 'graphql';
-
-const isValidLimit = (limit: number): boolean => {
-  return limit > 0 && limit < 101;
-};
 
 const hasNextPreviousPage = (
   currentPage: number,
@@ -27,13 +22,6 @@ interface args {
 }
 
 const paginatedResults = async ({ currentPage, limit, model, query }: args) => {
-  if (!isValidLimit(limit)) {
-    throw new GraphQLError(
-      'Limit must be greater than 0 and less than or equal to 100',
-      { extensions: { code: 'BAD_USER_INPUT' } }
-    );
-  }
-
   const startIndex = (currentPage - 1) * limit;
   const modelLength = await model.collection.countDocuments();
 
@@ -50,6 +38,7 @@ const paginatedResults = async ({ currentPage, limit, model, query }: args) => {
     .select('-__v')
     .exec();
 
+  //console.log('results', modelResults);
   return {
     modelResults,
     paginationDetails: { currentPage, limit, nextPage, previousPage },

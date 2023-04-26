@@ -15,3 +15,9 @@ export interface Journey {
   coveredDistanceMeters: number;
   durationSeconds: number;
 }
+
+export enum Default {
+  DistanceDurration = 10,
+  MaxQueryLimit = 600,
+  MinQueryLimit = 50,
+}

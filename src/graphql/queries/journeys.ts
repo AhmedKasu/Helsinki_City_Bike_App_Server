@@ -1,6 +1,7 @@
 import JourneyModel from '../../models/journeys';
 import { Journey, PaginationDetails } from '../../types';
 import paginatedResults from '../../utils/pagination';
+import { parseDistaceDurration, parseQueryLimit } from '../../utils/parsers';
 
 export const typeDefs = `
 type PaginationDetails {
@@ -8,7 +9,6 @@ type PaginationDetails {
   currentPage: Int!
   nextPage: Boolean!
   previousPage: Boolean!
-
 }
 
 type Journey {
@@ -30,7 +30,14 @@ type JourneyResult {
 
 type Query {
   journeysCount: Int!
-  allJourneys(currentPage:Int,limit:Int,departureStationName:String,returnStationName:String): JourneyResult! 
+  allJourneys(
+    currentPage:Int,
+    limit:Int,
+    departureStationName:String,
+    returnStationName:String,
+    coveredDistanceMeters:Int,
+    durrationSeconds:Int
+  ): JourneyResult! 
 }
 `;
 
@@ -39,6 +46,8 @@ interface QueryArgs {
   limit: number;
   departureStationName: string;
   returnStationName: string;
+  coveredDistanceMeters: number;
+  durrationSeconds: number;
 }
 interface JourneyResults {
   journeys: Array<Journey>;
@@ -54,12 +63,22 @@ export const resolvers = {
       _root: unknown,
       args: QueryArgs
     ): Promise<JourneyResults> => {
-      const { currentPage, limit, departureStationName, returnStationName } =
-        args;
+      const {
+        currentPage,
+        limit,
+        departureStationName,
+        returnStationName,
+        coveredDistanceMeters,
+        durrationSeconds,
+      } = args;
 
       const defaultQuery = {
-        coveredDistanceMeters: { $gt: 10 },
-        durationSeconds: { $gt: 10 },
+        coveredDistanceMeters: {
+          $gte: parseDistaceDurration(coveredDistanceMeters),
+        },
+        durationSeconds: {
+          $gte: parseDistaceDurration(durrationSeconds),
+        },
       };
 
       const searchQuery = {
@@ -73,7 +92,7 @@ export const resolvers = {
       const { modelResults: journeys, paginationDetails } =
         await paginatedResults({
           currentPage,
-          limit,
+          limit: parseQueryLimit(limit),
           model: JourneyModel,
           query:
             departureStationName && returnStationName
