@@ -1,4 +1,5 @@
 export interface PaginationDetails {
+  resultsTotal: number;
   currentPage: number;
   limit: number;
   nextPage: boolean;

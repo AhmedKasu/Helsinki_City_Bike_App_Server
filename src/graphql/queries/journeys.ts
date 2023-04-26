@@ -5,6 +5,7 @@ import { parseDistaceDurration, parseQueryLimit } from '../../utils/parsers';
 
 export const typeDefs = `
 type PaginationDetails {
+  resultsTotal: Int!
   limit: Int!
   currentPage: Int!
   nextPage: Boolean!
