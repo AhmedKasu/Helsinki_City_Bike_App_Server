@@ -5,7 +5,6 @@ export interface PaginationDetails {
   nextPage: boolean;
   previousPage: boolean;
 }
-
 export interface Journey {
   departure: string;
   return: string;
@@ -15,6 +14,14 @@ export interface Journey {
   departureStationName: string;
   coveredDistanceMeters: number;
   durationSeconds: number;
+}
+export interface OrderBy {
+  [key: string]: SortOrder;
+}
+
+export enum SortOrder {
+  Ascending = 'asc',
+  Descending = 'desc',
 }
 
 export enum Default {

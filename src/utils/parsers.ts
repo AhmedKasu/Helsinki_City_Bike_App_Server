@@ -1,5 +1,5 @@
 import { GraphQLError } from 'graphql';
-import { Default } from '../types';
+import { Default, SortOrder } from '../types';
 
 export const parseDistaceDurration = (value: number): number => {
   if (value !== undefined && value < Default.DistanceDurration) {
@@ -23,4 +23,24 @@ export const parseQueryLimit = (limit: number) => {
     );
 
   return limit ? limit : Default.MinQueryLimit;
+};
+
+const isValidOrder = (order: string): order is SortOrder => {
+  return Object.values(SortOrder)
+    .map((o) => o.toString())
+    .includes(order);
+};
+
+type OrderBy = SortOrder.Ascending | SortOrder.Descending;
+
+export const parseSortOrder = (order: string): OrderBy => {
+  if (!order || (order && !isValidOrder(order)))
+    throw new GraphQLError(
+      `Invalid order ${order}. Order may only be 'asc' or 'desc'`,
+      {
+        extensions: { code: 'BAD_USER_INPUT' },
+      }
+    );
+
+  return order as OrderBy;
 };
