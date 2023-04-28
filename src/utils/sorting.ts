@@ -2,7 +2,7 @@ import { GraphQLError } from 'graphql';
 import { parseSortOrder } from './parsers';
 import { OrderBy } from '../types';
 
-export const getSortingOrder = (obj: OrderBy) => {
+export const getSortingOrder = (obj: OrderBy | undefined) => {
   if (obj && Object.keys(obj).length < 1)
     throw new GraphQLError('orderBy object can not be empty!', {
       extensions: { code: 'BAD_USER_INPUT' },

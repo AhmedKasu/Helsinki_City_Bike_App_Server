@@ -8,7 +8,7 @@ interface Args {
   limit: number;
   model: typeof Model;
   query: object;
-  orderBy: OrderBy;
+  orderBy?: OrderBy;
 }
 
 const paginatedResults = async ({

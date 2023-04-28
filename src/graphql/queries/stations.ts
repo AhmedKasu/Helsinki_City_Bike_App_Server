@@ -1,4 +1,6 @@
 import StationModel from '../../models/stations';
+import { Station, PaginationDetails } from '../../types';
+import paginatedResults from '../../utils/pagination';
 
 const typeDefs = `
 type Station {
@@ -17,20 +19,56 @@ type Station {
     y: Float!
 }
 
+type PaginationDetails {
+    resultsTotal: Int!
+    limit: Int!
+    currentPage: Int!
+    nextPage: Boolean!
+    previousPage: Boolean!
+  }
+
+type StationResult {
+    stations: [Station!]!
+    paginationDetails: PaginationDetails!
+}  
+
 type Query {
     stationsCount: Int!
-    allStations: [Station!]! 
+    allStations( currentPage: Int,limit: Int,): StationResult! 
   }
 `;
+interface QueryArgs {
+  currentPage: number;
+  limit: number;
+}
+interface StationResults {
+  stations: Array<Station>;
+  paginationDetails: PaginationDetails;
+}
 
 const resolvers = {
   Query: {
     stationsCount: async (): Promise<number> =>
       StationModel.collection.countDocuments(),
 
-    allStations: async () => {
-      const stations = await StationModel.find({});
-      return stations;
+    allStations: async (
+      _root: unknown,
+      args: QueryArgs
+    ): Promise<StationResults> => {
+      const { limit, currentPage } = args;
+
+      const { modelResults: stations, paginationDetails } =
+        await paginatedResults({
+          currentPage,
+          limit,
+          model: StationModel,
+          query: {},
+        });
+
+      return {
+        stations,
+        paginationDetails,
+      };
     },
   },
 };
