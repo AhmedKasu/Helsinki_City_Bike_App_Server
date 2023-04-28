@@ -15,6 +15,21 @@ export interface Journey {
   coveredDistanceMeters: number;
   durationSeconds: number;
 }
+export interface Station {
+  fId: number;
+  id: number;
+  nimi: string;
+  namn: string;
+  name: string;
+  osoite: string;
+  adress: string;
+  kaupunki: string;
+  stad: string;
+  operaattor: string;
+  kapasiteet: number;
+  x: number;
+  y: number;
+}
 export interface OrderBy {
   [key: string]: SortOrder;
 }
