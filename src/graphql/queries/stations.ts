@@ -25,16 +25,17 @@ type PaginationDetails {
     currentPage: Int!
     nextPage: Boolean!
     previousPage: Boolean!
-  }
-
+  } 
+  
 type StationResult {
     stations: [Station!]!
     paginationDetails: PaginationDetails!
-}  
+}   
 
 type Query {
     stationsCount: Int!
     allStations( currentPage: Int,limit: Int,): StationResult! 
+    searchStation(nimi:String!): [String]
   }
 `;
 interface QueryArgs {
@@ -45,6 +46,8 @@ interface StationResults {
   stations: Array<Station>;
   paginationDetails: PaginationDetails;
 }
+
+type SearchResults = Array<string>;
 
 const resolvers = {
   Query: {
@@ -69,6 +72,30 @@ const resolvers = {
         stations,
         paginationDetails,
       };
+    },
+
+    searchStation: async (
+      _root: unknown,
+      args: { nimi: string }
+    ): Promise<SearchResults> => {
+      const agg = [
+        {
+          $search: {
+            index: 'stationAutoComplete',
+            autocomplete: { query: args.nimi, path: 'nimi' },
+          },
+        },
+        { $limit: 10 },
+        { $project: { _id: 0, nimi: 1 } },
+      ];
+
+      const autoCompleteResult = await StationModel.aggregate(agg);
+      const searchResult: SearchResults = [];
+
+      autoCompleteResult.map((object: { nimi: string }) =>
+        searchResult.push(object.nimi)
+      );
+      return searchResult;
     },
   },
 };
