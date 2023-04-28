@@ -1,29 +1,22 @@
 import { Schema, model } from 'mongoose';
 import { Journey } from '../types';
+import { journeyIndexes } from './queryIndexes';
 
-const journeySchema = new Schema({
-  departure: { type: String, required: true },
-  return: { type: String, required: true },
-  departureStationId: { type: Number, required: true },
-  departureStationName: { type: String, required: true },
-  returnStationName: { type: String, required: true },
-  returnStationId: { type: Number, required: true },
-  coveredDistanceMeters: { type: Number, required: true },
-  durationSeconds: { type: Number, required: true },
+const requiredNumber = { type: Number, required: true };
+const requiredString = { type: String, required: true };
+
+export const journeySchema = new Schema({
+  departure: requiredString,
+  return: requiredString,
+  departureStationId: requiredNumber,
+  departureStationName: requiredString,
+  returnStationName: requiredString,
+  returnStationId: requiredNumber,
+  coveredDistanceMeters: requiredNumber,
+  durationSeconds: requiredNumber,
 });
 
-journeySchema.index({ coveredDistanceMeters: 1, durationSeconds: 1 });
-journeySchema.index({ coveredDistanceMeters: 1, durationSeconds: -1 });
-journeySchema.index({ departureStationName: 1, returnStationName: 1 });
-journeySchema.index({ departureStationName: 1, returnStationName: -1 });
-
-journeySchema.index({
-  departureStationName: 1,
-  returnStationName: 1,
-  coveredDistanceMeters: 1,
-  durationSeconds: 1,
-});
-journeySchema.index({ coveredDistanceMeters: 1, departureStationName: 1 });
+journeyIndexes();
 
 const Journey = model<Journey>('Journey', journeySchema, 'journeys');
 
