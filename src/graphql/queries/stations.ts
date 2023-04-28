@@ -36,6 +36,7 @@ type Query {
     stationsCount: Int!
     allStations( currentPage: Int,limit: Int,): StationResult! 
     searchStation(nimi:String!): [String]
+    getStation(nimi:String!): Station
   }
 `;
 interface QueryArgs {
@@ -48,6 +49,9 @@ interface StationResults {
 }
 
 type SearchResults = Array<string>;
+interface SearchArg {
+  nimi: string;
+}
 
 const resolvers = {
   Query: {
@@ -76,13 +80,13 @@ const resolvers = {
 
     searchStation: async (
       _root: unknown,
-      args: { nimi: string }
+      { nimi }: SearchArg
     ): Promise<SearchResults> => {
       const agg = [
         {
           $search: {
             index: 'stationAutoComplete',
-            autocomplete: { query: args.nimi, path: 'nimi' },
+            autocomplete: { query: nimi, path: 'nimi' },
           },
         },
         { $limit: 10 },
@@ -96,6 +100,11 @@ const resolvers = {
         searchResult.push(object.nimi)
       );
       return searchResult;
+    },
+
+    getStation: async (_root: unknown, { nimi }: SearchArg) => {
+      const station = await StationModel.findOne({ nimi });
+      return station;
     },
   },
 };
