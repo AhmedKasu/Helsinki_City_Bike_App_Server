@@ -1,7 +1,7 @@
 import JourneyModel from '../../models/journeys';
 import { Journey, PaginationDetails, OrderBy } from '../../types';
 import paginatedResults from '../../utils/pagination';
-import { parseDistaceDurration, parseQueryLimit } from '../../utils/parsers';
+import { parseDistaceDurration } from '../../utils/parsers';
 
 const typeDefs = `
 type PaginationDetails {
@@ -103,7 +103,7 @@ export const resolvers = {
       const { modelResults: journeys, paginationDetails } =
         await paginatedResults({
           currentPage,
-          limit: parseQueryLimit(limit),
+          limit,
           model: JourneyModel,
           query:
             departureStationName && returnStationName

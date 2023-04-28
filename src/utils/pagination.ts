@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { hasNextPreviousPage } from './hasNextPreviousPage';
 import { getSortingOrder } from './sorting';
 import { OrderBy } from '../types';
+import { parseQueryLimit } from './parsers';
 interface Args {
   currentPage: number;
   limit: number;
@@ -17,7 +18,8 @@ const paginatedResults = async ({
   query,
   orderBy,
 }: Args) => {
-  const startIndex = (currentPage - 1) * limit;
+  const parsedLimit = parseQueryLimit(limit);
+  const startIndex = (currentPage - 1) * parsedLimit;
   const sortOrder = getSortingOrder(orderBy);
   console.log('order', sortOrder);
 
@@ -25,7 +27,7 @@ const paginatedResults = async ({
     model
       .find(query)
       .sort(orderBy)
-      .limit(limit)
+      .limit(parsedLimit)
       .skip(startIndex)
       .select('-__v')
       .exec(),
@@ -35,7 +37,7 @@ const paginatedResults = async ({
 
   const { nextPage, previousPage } = hasNextPreviousPage(
     currentPage,
-    limit,
+    parsedLimit,
     resultsTotal
   );
 
@@ -44,7 +46,7 @@ const paginatedResults = async ({
     paginationDetails: {
       resultsTotal,
       currentPage,
-      limit,
+      limit: parsedLimit,
       nextPage,
       previousPage,
     },
