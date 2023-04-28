@@ -21,12 +21,11 @@ const paginatedResults = async ({
   const parsedLimit = parseQueryLimit(limit);
   const startIndex = (currentPage - 1) * parsedLimit;
   const sortOrder = getSortingOrder(orderBy);
-  console.log('order', sortOrder);
 
   const [modelResults, resultsTotal] = await Promise.all([
     model
       .find(query)
-      .sort(orderBy)
+      .sort(sortOrder)
       .limit(parsedLimit)
       .skip(startIndex)
       .select('-__v')
