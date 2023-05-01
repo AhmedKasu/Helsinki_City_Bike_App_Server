@@ -1,7 +1,7 @@
 import JourneyModel from '../../models/journeys';
 import { Journey, PaginationDetails, OrderBy } from '../../types';
 import paginatedResults from '../../utils/pagination';
-import { parseDistaceDurration } from '../../utils/parsers';
+import { parseDistaceDurration, parseCurrentPage } from '../../utils/parsers';
 
 const typeDefs = `
 type PaginationDetails {
@@ -56,7 +56,7 @@ interface QueryArgs {
   departureStationName: string;
   returnStationName: string;
   coveredDistanceMeters: number;
-  durrationSeconds: number;
+  durationSeconds: number;
   orderBy: OrderBy;
 }
 interface JourneyResults {
@@ -79,21 +79,22 @@ export const resolvers = {
         departureStationName,
         returnStationName,
         coveredDistanceMeters,
-        durrationSeconds,
+        durationSeconds,
         orderBy,
       } = args;
 
-      const defaultQuery = {
+      const defaultQuery = {};
+      const filterQuery = {
         coveredDistanceMeters: {
           $gte: parseDistaceDurration(coveredDistanceMeters),
         },
         durationSeconds: {
-          $gte: parseDistaceDurration(durrationSeconds),
+          $gte: parseDistaceDurration(durationSeconds),
         },
       };
 
       const searchQuery = {
-        ...defaultQuery,
+        ...filterQuery,
         $and: [
           { departureStationName: { $in: [departureStationName] } },
           { returnStationName: { $in: [returnStationName] } },
@@ -102,16 +103,17 @@ export const resolvers = {
 
       const { modelResults: journeys, paginationDetails } =
         await paginatedResults({
-          currentPage,
+          currentPage: parseCurrentPage(currentPage),
           limit,
           model: JourneyModel,
           query:
             departureStationName && returnStationName
               ? searchQuery
+              : coveredDistanceMeters && durationSeconds
+              ? filterQuery
               : defaultQuery,
           orderBy,
         });
-
       return {
         journeys,
         paginationDetails,

@@ -2,14 +2,10 @@ import { GraphQLError } from 'graphql';
 import { Default, SortOrder } from '../types';
 
 export const parseDistaceDurration = (value: number): number => {
-  if (value !== undefined && value < Default.DistanceDurration) {
-    throw new GraphQLError(
-      `Distance or Durration must be greater than or equal to ${Default.DistanceDurration}`,
-      { extensions: { code: 'BAD_USER_INPUT' } }
-    );
-  }
-
   return value ? value : Default.DistanceDurration;
+};
+export const parseCurrentPage = (value: number): number => {
+  return value ? value : Default.CurrentPage;
 };
 
 export const parseQueryLimit = (limit: number) => {
@@ -43,4 +39,12 @@ export const parseSortOrder = (order: string): OrderBy => {
     );
 
   return order as OrderBy;
+};
+
+export const parseMonth = (value: number) => {
+  if (value < 1 || value > 12)
+    throw new GraphQLError(`Invalid month format. Month must be (1-12)`, {
+      extensions: { code: 'BAD_USER_INPUT' },
+    });
+  return value;
 };
