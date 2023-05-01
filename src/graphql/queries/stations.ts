@@ -2,7 +2,7 @@ import StationModel from '../../models/stations';
 import { Station, PaginationDetails, Journey } from '../../types';
 import paginatedResults from '../../utils/pagination';
 import { stationAggregate } from '../../utils/aggregations';
-import { averageDistance } from '../../utils/utils';
+import { averageDistance, findOccurrence } from '../../utils/utils';
 import { parseMonth } from '../../utils/parsers';
 
 import * as _ from 'lodash';
@@ -35,11 +35,28 @@ type PaginationDetails {
 type StationsResult {
     stations: [Station!]!
     paginationDetails: PaginationDetails!
-}   
+}  
 
-type StationJourneyDetails {
+type StartMostPopular {
+    returnStationName: String
+    journeys: Int
+}
+
+type EndMostPopular  {
+    departureStationName: String
+    journeys: Int
+}
+
+type StartStationJourneyDetails {
     count: Int!
     averageDistanceMeters: Int!  
+    mostPopular: [StartMostPopular]
+}
+
+type EndStationJourneyDetails {
+    count: Int!
+    averageDistanceMeters: Int!  
+    mostPopular:[ EndMostPopular]
 }
 
 type StationResult {
@@ -56,8 +73,8 @@ type StationResult {
     kapasiteet: Int!
     x: Float!
     y: Float!
-    journeysStarting: StationJourneyDetails!
-    journeysEnding: StationJourneyDetails!
+    journeysStarting: StartStationJourneyDetails!
+    journeysEnding: EndStationJourneyDetails!
 }
 
 type Query {
@@ -82,9 +99,16 @@ interface SearchArg {
   month: number;
 }
 
+interface MostPopular {
+  departureStationName?: string;
+  returnStationName?: string;
+  journeys?: number;
+}
+
 interface StationJourneyDetails {
   count: number;
   averageDistanceMeters: number;
+  mostPopular: Array<MostPopular>;
 }
 interface StationResult {
   fId: number;
@@ -171,10 +195,12 @@ const resolvers = {
       station[0].journeysStarting = {
         count: journeysStarting.length,
         averageDistanceMeters: averageDistance(journeysStarting),
+        mostPopular: findOccurrence(journeysStarting, 'returnStationName'),
       };
       station[0].journeysEnding = {
         count: journeysEnding.length,
         averageDistanceMeters: averageDistance(journeysEnding),
+        mostPopular: findOccurrence(journeysEnding, 'departureStationName'),
       };
 
       return station;

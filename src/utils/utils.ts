@@ -14,3 +14,37 @@ export const averageDistance = (journeysArray: Array<Journey>) => {
 
   return validJourneysArray ? round(average) : 0;
 };
+
+interface Arr {
+  [key: string]: unknown;
+  journeys: number;
+}
+
+export const findOccurrence = (journeysArray: Journey[], key: string) => {
+  const journeyOccurrences: Arr[] = [];
+
+  journeysArray.forEach((journey) => {
+    const journeyKey =
+      key === 'returnStationName'
+        ? journey.returnStationName
+        : journey.departureStationName;
+    if (
+      journeyOccurrences.some((val) => {
+        return val[key] == journeyKey;
+      })
+    ) {
+      journeyOccurrences.forEach((k) => {
+        if (k[key] === journeyKey) {
+          k.journeys += 1;
+        }
+      });
+    } else {
+      const a: Arr = { [key]: '', journeys: 0 };
+      a[key] = journeyKey;
+      a.journeys = 1;
+      journeyOccurrences.push(a);
+    }
+  });
+
+  return journeyOccurrences.sort((a, b) => b.journeys - a.journeys).slice(0, 5);
+};
