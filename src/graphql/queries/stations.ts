@@ -1,6 +1,11 @@
 import StationModel from '../../models/stations';
-import { Station, PaginationDetails } from '../../types';
+import { Station, PaginationDetails, Journey } from '../../types';
 import paginatedResults from '../../utils/pagination';
+import { stationAggregate } from '../../utils/aggregations';
+import { averageDistance } from '../../utils/utils';
+import { parseMonth } from '../../utils/parsers';
+
+import * as _ from 'lodash';
 
 const typeDefs = `
 type Station {
@@ -27,16 +32,39 @@ type PaginationDetails {
     previousPage: Boolean!
   } 
   
-type StationResult {
+type StationsResult {
     stations: [Station!]!
     paginationDetails: PaginationDetails!
 }   
 
+type StationJourneyDetails {
+    count: Int!
+    averageDistanceMeters: Int!  
+}
+
+type StationResult {
+    fId: Int!
+    id: Int!
+    nimi: String!
+    namn: String!
+    name: String!
+    osoite: String!
+    adress: String!
+    kaupunki: String!
+    stad: String!
+    operaattor: String!
+    kapasiteet: Int!
+    x: Float!
+    y: Float!
+    journeysStarting: StationJourneyDetails!
+    journeysEnding: StationJourneyDetails!
+}
+
 type Query {
     stationsCount: Int!
-    allStations( currentPage: Int,limit: Int,): StationResult! 
+    allStations( currentPage: Int,limit: Int,): StationsResult! 
     searchStation(nimi:String!): [String]
-    getStation(nimi:String!): Station
+    getStation( nimi: String!,month: Int): [StationResult]!
   }
 `;
 interface QueryArgs {
@@ -51,6 +79,29 @@ interface StationResults {
 type SearchResults = Array<string>;
 interface SearchArg {
   nimi: string;
+  month: number;
+}
+
+interface StationJourneyDetails {
+  count: number;
+  averageDistanceMeters: number;
+}
+interface StationResult {
+  fId: number;
+  id: number;
+  nimi: string;
+  namn: string;
+  name: string;
+  osoite: string;
+  adress: string;
+  kaupunki: string;
+  stad: string;
+  operaattor: string;
+  kapasiteet: number;
+  x: number;
+  y: number;
+  journeysStarting: StationJourneyDetails;
+  journeysEnding: StationJourneyDetails;
 }
 
 const resolvers = {
@@ -102,8 +153,30 @@ const resolvers = {
       return searchResult;
     },
 
-    getStation: async (_root: unknown, { nimi }: SearchArg) => {
-      const station = await StationModel.findOne({ nimi });
+    getStation: async (
+      _root: unknown,
+      { nimi, month }: SearchArg
+    ): Promise<Array<StationResult>> => {
+      const validMonth = parseMonth(month);
+
+      const result = await StationModel.aggregate(
+        stationAggregate({ nimi, month: validMonth })
+      );
+
+      const journeysStarting: Array<Journey> = result[0].journeysStarting; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+      const journeysEnding: Array<Journey> = result[0].journeysEnding; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+
+      const station: Array<StationResult> = _.cloneDeep(result); // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+
+      station[0].journeysStarting = {
+        count: journeysStarting.length,
+        averageDistanceMeters: averageDistance(journeysStarting),
+      };
+      station[0].journeysEnding = {
+        count: journeysEnding.length,
+        averageDistanceMeters: averageDistance(journeysEnding),
+      };
+
       return station;
     },
   },

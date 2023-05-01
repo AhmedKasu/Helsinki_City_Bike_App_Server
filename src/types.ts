@@ -43,4 +43,6 @@ export enum Default {
   DistanceDurration = 10,
   MaxQueryLimit = 600,
   MinQueryLimit = 50,
+  Year = 2021,
+  CurrentPage = 1,
 }
