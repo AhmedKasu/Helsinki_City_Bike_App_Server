@@ -3,7 +3,7 @@ import { Station, PaginationDetails, Journey } from '../../types';
 import paginatedResults from '../../utils/pagination';
 import { stationAggregate } from '../../utils/aggregations';
 import { averageDistance, findOccurrence } from '../../utils/utils';
-import { parseMonth } from '../../utils/parsers';
+import { parseMonth, parseCurrentPage } from '../../utils/parsers';
 
 import * as _ from 'lodash';
 
@@ -141,7 +141,7 @@ const resolvers = {
 
       const { modelResults: stations, paginationDetails } =
         await paginatedResults({
-          currentPage,
+          currentPage: parseCurrentPage(currentPage),
           limit,
           model: StationModel,
           query: {},
