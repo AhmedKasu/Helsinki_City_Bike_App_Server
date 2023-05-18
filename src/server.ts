@@ -29,10 +29,9 @@ const startServer = async () => {
     expressMiddleware(server)
   );
 
-  await new Promise<void>((resolve) =>
-    httpServer.listen({ port: config.PORT | 4000 }, resolve)
-  );
-  console.log(`🚀 Server ready at http://localhost:${config.PORT}/`);
+  const port = process.env.PORT || config.PORT;
+  await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
+  console.log(`🚀 Server ready at http://localhost:${port}/`);
 };
 
 export default startServer;
