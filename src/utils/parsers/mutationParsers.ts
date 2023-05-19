@@ -19,10 +19,25 @@ export const parseDate = (date: unknown): string => {
   return date;
 };
 
+export const parseReturn = (time: { departure: string; return: string }) => {
+  const parserdReturn = parseDate(time.return);
+  if (
+    new Date(parserdReturn).getTime() - new Date(time.departure).getTime() <
+    0
+  )
+    throw new GraphQLError(
+      'Return date can not be before departure: ' + parserdReturn,
+      {
+        extensions: { code: 'BAD_USER_INPUT' },
+      }
+    );
+  return parserdReturn;
+};
+
 export const parseJourneyArgs = (args: Journey) => {
   return {
     ...args,
     departure: parseDate(args.departure),
-    return: parseDate(args.return),
+    return: parseReturn({ return: args.return, departure: args.departure }),
   };
 };
