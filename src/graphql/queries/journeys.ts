@@ -1,7 +1,8 @@
 import JourneyModel from '../../models/journeys';
 import { Journey, PaginationDetails, OrderBy } from '../../types';
 import paginatedResults from '../../utils/pagination';
-import { parseDistaceDurration, parseCurrentPage } from '../../utils/parsers';
+import { parseDistaceDurration } from '../../utils/parsers/queryParsers';
+import { parseCurrentPage } from '../../utils/parsers/paginationParsers';
 
 const typeDefs = `
 type PaginationDetails {

@@ -3,7 +3,10 @@ import { Station, PaginationDetails, Journey } from '../../types';
 import paginatedResults from '../../utils/pagination';
 import { stationAggregate } from '../../utils/aggregations';
 import { averageDistance, findOccurrence } from '../../utils/utils';
-import { parseMonth, parseCurrentPage } from '../../utils/parsers';
+import {
+  parseMonth,
+  parseCurrentPage,
+} from '../../utils/parsers/paginationParsers';
 
 import * as _ from 'lodash';
 

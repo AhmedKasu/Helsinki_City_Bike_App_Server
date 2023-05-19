@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import { hasNextPreviousPage } from './hasNextPreviousPage';
 import { getSortingOrder } from './sorting';
 import { OrderBy } from '../types';
-import { parseQueryLimit } from './parsers';
+import { parseQueryLimit } from './parsers/paginationParsers';
 interface Args {
   currentPage: number;
   limit: number;

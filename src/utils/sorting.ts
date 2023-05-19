@@ -1,5 +1,5 @@
 import { GraphQLError } from 'graphql';
-import { parseSortOrder } from './parsers';
+import { parseSortOrder } from './parsers/sortparsers';
 import { OrderBy } from '../types';
 
 export const getSortingOrder = (obj: OrderBy | undefined) => {
