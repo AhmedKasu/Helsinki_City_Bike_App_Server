@@ -5,7 +5,7 @@ export const parseDistaceDurration = (value: number): number => {
   return value ? value : Default.DistanceDurration;
 };
 export const parseCurrentPage = (value: number): number => {
-  return value ? value : Default.CurrentPage;
+  return value > 0 ? value : Default.CurrentPage;
 };
 
 export const parseQueryLimit = (limit: number) => {
