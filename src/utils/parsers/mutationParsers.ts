@@ -45,6 +45,13 @@ const parseDistace = (value: number) => {
   return value;
 };
 
+const parseDuration = (time: { departure: string; return: string }) => {
+  return (
+    (new Date(time.return).getTime() - new Date(time.departure).getTime()) *
+    0.001
+  );
+};
+
 export const parseJourneyArgs = (args: Journey) => {
   const time = { return: args.return, departure: args.departure };
   return {
@@ -52,5 +59,6 @@ export const parseJourneyArgs = (args: Journey) => {
     departure: parseDate(args.departure),
     return: parseReturn(time),
     coveredDistanceMeters: parseDistace(args.coveredDistanceMeters),
+    durationSeconds: parseDuration(time),
   };
 };

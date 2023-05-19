@@ -23,7 +23,6 @@ input JourneyInput {
     departureStationName: String!
     returnStationName: String!
     coveredDistanceMeters: Int!
-    durationSeconds: Int!
 }
 
 type Mutation {
@@ -62,7 +61,7 @@ const resolvers = {
             invalidArgs: parsedInputs.returnStationName,
           },
         });
-
+      console.log(parsedInputs);
       const journey = new JourneyModel({
         ...{
           ...parsedInputs,
