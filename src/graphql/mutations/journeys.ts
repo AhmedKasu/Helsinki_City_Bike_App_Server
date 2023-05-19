@@ -2,6 +2,7 @@ import { GraphQLError } from 'graphql';
 import JourneyModel from '../../models/journeys';
 import StationModel from '../../models/stations';
 import { Journey, Station } from '../../types';
+import { parseJourneyArgs } from '../../utils/parsers/mutationParsers';
 
 const typeDefs = `
 type Journey {
@@ -38,31 +39,33 @@ const resolvers = {
     addJourney: async (_root: unknown, args: MutationArgs) => {
       const { journeyInput } = args;
 
+      const parsedInputs = parseJourneyArgs(journeyInput);
+
       const departureStation: Station | null = await StationModel.findOne({
-        nimi: journeyInput.departureStationName,
+        nimi: parsedInputs.departureStationName,
       });
       if (!departureStation)
         throw new GraphQLError('Saving journey failed', {
           extensions: {
             code: 'BAD_USER_INPUT',
-            invalidArgs: journeyInput.departureStationName,
+            invalidArgs: parsedInputs.departureStationName,
           },
         });
 
       const returnStation: Station | null = await StationModel.findOne({
-        nimi: journeyInput.returnStationName,
+        nimi: parsedInputs.returnStationName,
       });
       if (!returnStation)
         throw new GraphQLError('Saving journey failed', {
           extensions: {
             code: 'BAD_USER_INPUT',
-            invalidArgs: journeyInput.returnStationName,
+            invalidArgs: parsedInputs.returnStationName,
           },
         });
 
       const journey = new JourneyModel({
         ...{
-          ...journeyInput,
+          ...parsedInputs,
           departureStationId: departureStation?.id,
           returnStationId: returnStation?.id,
         },
