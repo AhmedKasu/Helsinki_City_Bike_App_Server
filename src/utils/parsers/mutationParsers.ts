@@ -1,5 +1,5 @@
 import { GraphQLError } from 'graphql';
-import { Journey } from '../../types';
+import { Default, Journey } from '../../types';
 
 const isString = (text: unknown): text is string => {
   return typeof text === 'string';
@@ -9,7 +9,7 @@ const isDate = (date: string): boolean => {
   return Boolean(Date.parse(date));
 };
 
-export const parseDate = (date: unknown): string => {
+const parseDate = (date: unknown): string => {
   if (!date || !isString(date) || !isDate(date)) {
     throw new GraphQLError('Incorrect or missing date: ' + date, {
       extensions: { code: 'BAD_USER_INPUT' },
@@ -19,7 +19,7 @@ export const parseDate = (date: unknown): string => {
   return date;
 };
 
-export const parseReturn = (time: { departure: string; return: string }) => {
+const parseReturn = (time: { departure: string; return: string }) => {
   const parserdReturn = parseDate(time.return);
   if (
     new Date(parserdReturn).getTime() - new Date(time.departure).getTime() <
@@ -34,10 +34,23 @@ export const parseReturn = (time: { departure: string; return: string }) => {
   return parserdReturn;
 };
 
+const parseDistace = (value: number) => {
+  if (!value || value < Default.DistanceDurration)
+    throw new GraphQLError(
+      'Invalid value distance must be greater or equal to 10: ' + value,
+      {
+        extensions: { code: 'BAD_USER_INPUT' },
+      }
+    );
+  return value;
+};
+
 export const parseJourneyArgs = (args: Journey) => {
+  const time = { return: args.return, departure: args.departure };
   return {
     ...args,
     departure: parseDate(args.departure),
-    return: parseReturn({ return: args.return, departure: args.departure }),
+    return: parseReturn(time),
+    coveredDistanceMeters: parseDistace(args.coveredDistanceMeters),
   };
 };
